@@ -157,7 +157,7 @@ ggmap(toner_hybrid) +
 
   5. Add a point to the map that indicates Macalester College and label it appropriately. There are many ways you can do think, but I think it's easiest with the `annotate()` function (see `ggplot2` cheatsheet).
   
-```{r Question_5}
+```{r ?Question_5_unfinished}
 Mac <- get_stamenmap(
     bbox = c(left = -93.19, bottom = 44.93, right = -93.14, top = 44.95), 
     maptype = "terrain",
@@ -230,7 +230,7 @@ starbucks_with_2018_pop_est %>%
         legend.position = "right") #how do I change caption placement?
 ```
 
-> Conclusion/observation
+> Conclusion/observation:
 
 ### A few of your favorite things (`leaflet`)
 
@@ -243,6 +243,38 @@ starbucks_with_2018_pop_est %>%
   * Connect all your locations together with a line in a meaningful way (you may need to order them differently in the original data).  
   
   * If there are other variables you want to add that could enhance your plot, do that now.  
+
+```{r Question_8_fix}
+favorite_stp_by_osmar <- tibble(
+  place = c("Home", "Macalester College", "Starbucks", 
+            "Target", "Trader Joe's", "The Downtowner",
+            "Mississippi River", "Cafe Latte", "Mattocks Park",
+            "Dunkin", "Hidden Falls Park", "McDonald's",
+            "Paige's Place"),
+  long = c(-93.102437, -93.100402, -93.095998, 
+           -93.115700, -93.084599, -93.061840, 
+           -93.1393172, -93.081060, -93.101474,
+           -93.100206, -93.113153, -93.095514,
+           -93.101813),
+  lat = c(44.962368, 44.962204, 44.965364,
+          44.971228, 44.953651, 44.963453, 
+          44.963187, 44.962340, 44.954233,
+          44.964432, 44.941871, 44.971949,
+          44.962280),
+  fav = c("Yes", "No", "Yes", 
+          "No", "No", "No",
+          "No", "No", "No",
+          "No", "No", "No",
+          "Yes")
+  )
+```
+
+```{r Question_8_unfinished}
+leaflet(data = favorite_stp_by_osmar) %>% 
+  addTiles() %>% 
+  addMarkers()
+```
+
   
 ## Revisiting old datasets
 
