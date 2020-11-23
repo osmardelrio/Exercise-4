@@ -206,6 +206,32 @@ Line 190 = tells R studio which variables to join the datasets by
 
   7. Create a choropleth map that shows the number of Starbucks per 10,000 people on a map of the US. Use a new fill color, add points for all Starbucks in the US (except Hawaii and Alaska), add an informative title for the plot, and include a caption that says who created the plot (you!). Make a conclusion about what you observe.
 
+```{r Question_7A}
+states_map <- map_data("state")
+
+starbucks_with_2018_pop_est %>% 
+  ggplot() +
+  geom_map(map = states_map,
+           aes(map_id = state_name,
+               fill = starbucks_per_10000)) +
+  geom_point(data = Starbucks %>%  filter(Country == "US") %>% 
+               filter(!`State/Province` %in% c("AK", "HI")), 
+             aes(x = Longitude, y = Latitude),
+             size = .05,
+             alpha = .2, 
+             color = "green4") +
+  expand_limits(x = states_map$long, y = states_map$lat)+
+  labs(title = "How close is the nearest Starbucks?",
+       subtitle = "Starbucks density and location per 10,000 people",
+       caption = "Created by Osmar Del Rio") +
+  scale_fill_viridis_c(option = "inferno") +
+  theme_map() +
+  theme(legend.background = element_blank(),
+        legend.position = "right") #how do I change caption placement?
+```
+
+> Conclusion/observation
+
 ### A few of your favorite things (`leaflet`)
 
   8. In this exercise, you are going to create a single map of some of your favorite places! The end result will be one map that satisfies the criteria below. 
