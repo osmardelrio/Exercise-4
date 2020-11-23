@@ -300,16 +300,55 @@ Stations<-read_csv("http://www.macalester.edu/~dshuman1/data/112/DC-Stations.csv
 
   9. Use the latitude and longitude variables in `Stations` to make a visualization of the total number of departures from each station in the `Trips` data. Use either color or size to show the variation in number of departures. This time, plot the points on top of a map. Use any of the mapping tools you'd like.
   
-```{r}
+```{r Question_9}
+WashingtonDC <- get_stamenmap(
+    bbox = c(left = -77.33, bottom = 38.74, right = -76.69, top = 39.05), 
+    maptype = "terrain",
+    zoom = 11)
 
+Trip_departures <-
+Trips %>%
+  count(sstation) %>%
+  rename(name = sstation) %>%
+  right_join(Stations, by = "name") 
+
+  ggmap(WashingtonDC) +
+  geom_point(data = Trip_departures, 
+             aes(x= long, y= lat), size = 0.5) +
+  theme_map() +
+  labs(title = "Total Bike Station Departures")
 ```
   
   10. Only 14.4% of the trips in our data are carried out by casual users. Create a plot that shows which area(s) have stations with a much higher percentage of departures by casual users. What patterns do you notice? Also plot this on top of a map. I think it will be more clear what the patterns are.
   
-```{r}
+```{r Question_10A}
+WashingtonDC <- get_stamenmap(
+    bbox = c(left = -77.33, bottom = 38.74, right = -76.69, top = 39.05), 
+    maptype = "terrain",
+    zoom = 11)
 
+Prop_Casual <- Trips %>%
+  group_by(sstation, client) %>%
+  summarize(n = n()) %>%
+  mutate(prop = n/sum(n)) %>%
+  filter(client %in% "Casual") %>%
+  rename(name = sstation) %>%
+  left_join(Stations) 
+
+ggmap(WashingtonDC) +
+  geom_point(data = Prop_Casual, 
+             aes(x= long, 
+                 y= lat, 
+                 color = prop, 
+                 size = prop), 
+             alpha = 0.75)+
+  scale_color_viridis_c(option = "viridis")+
+  theme_map() +
+  labs(title = "Proportion of Departures from Bike Stations by Casual Riders")
 ```
-  
+
+> What patterns do you notice? 
+
 ### COVID-19 data
 
 The following exercises will use the COVID-19 data from the NYT.
