@@ -140,6 +140,20 @@ ggmap(MSP_5_county) +
 > The zoom number appears to distort the map. Increasing the zoom number only forces it to zoom in on the image of the map, not adjusting the map itself to give in-depth details. Essentially, there is no change in the image itself, it just crops it to whatever value it is zoomed into. 
 
   4. Try a couple different map types (see `get_stamenmap()` in help and look at `maptype`). Include a map with one of the other map types.  
+  
+```{r}
+toner_hybrid <- get_stamenmap(
+    bbox = c(left = -180, bottom = -57, right = 179, top = 82.1), 
+    maptype = "toner-hybrid",
+    zoom = 2)
+
+ggmap(toner_hybrid) +
+  geom_point(data = Starbucks, 
+             aes(x = Longitude, y = Latitude), 
+             alpha = .3, 
+             size = .1) +
+  theme_map()
+```
 
   5. Add a point to the map that indicates Macalester College and label it appropriately. There are many ways you can do think, but I think it's easiest with the `annotate()` function (see `ggplot2` cheatsheet).
 
