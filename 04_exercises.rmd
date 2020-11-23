@@ -141,7 +141,7 @@ ggmap(MSP_5_county) +
 
   4. Try a couple different map types (see `get_stamenmap()` in help and look at `maptype`). Include a map with one of the other map types.  
   
-```{r}
+```{r Question_4}
 toner_hybrid <- get_stamenmap(
     bbox = c(left = -180, bottom = -57, right = 179, top = 82.1), 
     maptype = "toner-hybrid",
@@ -156,6 +156,23 @@ ggmap(toner_hybrid) +
 ```
 
   5. Add a point to the map that indicates Macalester College and label it appropriately. There are many ways you can do think, but I think it's easiest with the `annotate()` function (see `ggplot2` cheatsheet).
+  
+```{r Question_5}
+Mac <- get_stamenmap(
+    bbox = c(left = -93.19, bottom = 44.93, right = -93.14, top = 44.95), 
+    maptype = "terrain",
+    zoom = 15)
+
+ggmap(Mac) + 
+  geom_point(data = Starbucks, 
+             aes(x = Longitude, y = Latitude), 
+             alpha = .3, 
+             size = .1) +
+  theme_map() +
+  #annotate(Mac, 
+          #aes(x = 2, y =3, title = "Macalester College") +
+          geom_point() #unsure how to use annotate function
+```
 
 ### Choropleth maps with Starbucks data (`geom_map()`)
 
