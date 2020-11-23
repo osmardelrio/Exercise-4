@@ -76,7 +76,6 @@ If you were not able to get set up on GitHub last week, go [here](https://github
 * As you work through your homework, save and commit often, push changes occasionally (maybe after you feel finished with an exercise?), and go check to see what the .md file looks like on GitHub.  
 * If you have issues, let me know! This is new to many of you and may not be intuitive at first. But, I promise, you'll get the hang of it! 
 
-
 ## Instructions
 
 * Put your name at the top of the document. 
@@ -98,7 +97,43 @@ These exercises will reiterate what you learned in the "Mapping data with R" tut
 
   1. Add the `Starbucks` locations to a world map. Add an aesthetic to the world map that sets the color of the points according to the ownership type. What, if anything, can you deduce from this visualization?  
 
+```{r Question_1A}
+# Get the map information
+world <- get_stamenmap(
+    bbox = c(left = -180, bottom = -57, right = 179, top = 82.1), 
+    maptype = "terrain",
+    zoom = 2)
+
+# Plot the points on the map
+Starbucks <- Starbucks %>% 
+  mutate(Ownership_Type = factor(`Ownership Type`))
+
+ggmap(world) + # creates the map "background"
+  geom_point(data = Starbucks, 
+             aes(x = Longitude, y = Latitude, color = Ownership_Type), 
+             alpha = .3, 
+             size = .1) +
+  guides(colour = guide_legend(override.aes = list(size=3))) +
+  theme_map()
+```
+
+> What can you deduce from this visualization?
+
   2. Construct a new map of Starbucks locations in the Twin Cities metro area (approximately the 5 county metro area).  
+  
+```{r Question_2}
+MSP_5_county <- get_stamenmap(
+    bbox = c(left = -94.38, bottom = 44.34, right = -91.38, top = 45.656), 
+    maptype = "terrain",
+    zoom = 9)
+
+ggmap(MSP_5_county) + 
+  geom_point(data = Starbucks, 
+             aes(x = Longitude, y = Latitude), 
+             alpha = .3, 
+             size = .1) +
+  theme_map()
+```
 
   3. In the Twin Cities plot, play with the zoom number. What does it do?  (just describe what it does - don't actually include more than one map).  
 
