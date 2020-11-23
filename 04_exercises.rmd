@@ -178,7 +178,7 @@ ggmap(Mac) +
 
 The example I showed in the tutorial did not account for population of each state in the map. In the code below, a new variable is created, `starbucks_per_10000`, that gives the number of Starbucks per 10,000 people. It is in the `starbucks_with_2018_pop_est` dataset.
 
-```{r}
+```{r Question_6}
 census_pop_est_2018 <- read_csv("https://www.dropbox.com/s/6txwv3b4ng7pepe/us_census_2018_state_pop_est.csv?dl=1") %>% 
   separate(state, into = c("dot","state"), extra = "merge") %>% 
   select(-dot) %>% 
@@ -192,6 +192,17 @@ starbucks_with_2018_pop_est <-
 ```
 
   6. **`dplyr` review**: Look through the code above and describe what each line of code does.
+
+> Line 182 = saves the following commands as a dataset called "census_pop_est_2018" and reads in the csv file.
+Line 183 = separates state names into "dot" and "state", merging the extra?
+Line 184 = drops the dot in the state name
+Line 185 = creates new variable named state (overwrites the old one in this case) and makes it all lowercase
+
+> Line 187 = saves the following commands as a dataset called "starbucks_with_2018_pop_est"
+Line 188 = introduces dataset to which the following changes/commands are made 
+Line 189 = joins both datasets so that every value of the "census_pop_est" dataset get transfered over if they have a match in the "starbucks_us_by_state".
+Line 190 = tells R studio which variables to join the datasets by 
+191 = creates new variable in that dataset where it calculate number of starbucks per 10,000 to be easier to interpret and visualize (less hectic numbers)
 
   7. Create a choropleth map that shows the number of Starbucks per 10,000 people on a map of the US. Use a new fill color, add points for all Starbucks in the US (except Hawaii and Alaska), add an informative title for the plot, and include a caption that says who created the plot (you!). Make a conclusion about what you observe.
 
