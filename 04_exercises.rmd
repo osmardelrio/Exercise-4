@@ -117,7 +117,7 @@ ggmap(world) + # creates the map "background"
   theme_map()
 ```
 
-> What can you deduce from this visualization?
+> It appears that there are more Starbucks in North America where they are a fair mix of company owned and licensed; in Mexico they are all licensed. The only place with joint venture Starbucks looks to be Japan and the east coast of Asia. I cannot see any franchise Starbucks. Finally, it looks like the ownership type is well mixed in Europe but could differ by country.
 
   2. Construct a new map of Starbucks locations in the Twin Cities metro area (approximately the 5 county metro area).  
   
@@ -157,7 +157,7 @@ ggmap(toner_hybrid) +
 
   5. Add a point to the map that indicates Macalester College and label it appropriately. There are many ways you can do think, but I think it's easiest with the `annotate()` function (see `ggplot2` cheatsheet).
   
-```{r ?Question_5_unfinished}
+```{r Question_5}
 Mac <- get_stamenmap(
     bbox = c(left = -93.19, bottom = 44.93, right = -93.14, top = 44.95), 
     maptype = "terrain",
@@ -168,10 +168,15 @@ ggmap(Mac) +
              aes(x = Longitude, y = Latitude), 
              alpha = .3, 
              size = .1) +
-  theme_map() +
-  #annotate(Mac, 
-          #aes(x = 2, y =3, title = "Macalester College") +
-          geom_point() #unsure how to use annotate function
+  geom_point(aes(x = -93.17, 
+                 y = 44.94)) +
+  annotate('text', 
+              x = -93.17, 
+              y = 44.945, 
+              label = "Macalester College") +
+  labs(title = "Starbucks Locations by Ownership Type")
+  theme_map() 
+          
 ```
 
 ### Choropleth maps with Starbucks data (`geom_map()`)
@@ -230,7 +235,7 @@ starbucks_with_2018_pop_est %>%
         legend.position = "right") #how do I change caption placement?
 ```
 
-> Conclusion/observation:
+> Based on the graph above, we can conclude that the highest number of Starbucks per 10,000 people are located on the west coast. It also appears that there is an abundance of Starbucks in major cities across the U.S.
 
 ### A few of your favorite things (`leaflet`)
 
@@ -244,7 +249,7 @@ starbucks_with_2018_pop_est %>%
   
   * If there are other variables you want to add that could enhance your plot, do that now.  
 
-```{r Question_8_fix}
+```{r ?Question_8_data}
 favorite_stp_by_osmar <- tibble(
   place = c("Home", "Macalester College", "Starbucks", 
             "Target", "Trader Joe's", "The Downtowner",
@@ -269,10 +274,20 @@ favorite_stp_by_osmar <- tibble(
   )
 ```
 
-```{r Question_8_unfinished}
-leaflet(data = favorite_stp_by_osmar) %>% 
-  addTiles() %>% 
-  addMarkers()
+```{r ?Question_8}
+pal <- colorNumeric("inferno", 
+                     domain = favorite_stp_by_osmar$places)
+
+leaflet(favorite_stp_by_osmar) %>%
+addProviderTiles(providers$OpenStreetMap) %>% 
+addCircles(opacity = 1, #issue?
+           color = ~pal(place)) %>%
+addPolylines(lng = ~long,
+             lat = ~lat) %>%
+ addLegend(position = "bottomright",
+            pal = pal, 
+            values = ~place,
+            title = "Favorite Places") 
 ```
 
   
@@ -334,18 +349,6 @@ ggmap(dc_map) +
   theme(legend.background = element_blank()) +
   labs(title = "Total Bike Station Departures")
 ```
-
-```{r}
-pal <- colorNumeric("viridis",
-                    domain = departure_by_station$n)
-
-#head(pal(departure_by_station$n), n = 20)
-
-leaflet(data = departure_by_station) %>% 
-  addTiles () %>% 
-  addCircles(color = ~pal(n), 
-             opacity = .7)
-```
   
   10. Only 14.4% of the trips in our data are carried out by casual users. Create a plot that shows which area(s) have stations with a much higher percentage of departures by casual users. What patterns do you notice? Also plot this on top of a map. I think it will be more clear what the patterns are.
   
@@ -375,7 +378,7 @@ ggmap(WashingtonDC) +
   labs(title = "Proportion of Departures from Bike Stations by Casual Riders")
 ```
 
-> What patterns do you notice? 
+> It appears that the highest proportion of departures from bike stations by casual riders are in the city center. Perhaps, bikes are a way several people get to work on a daily basis, or maybe they bike to the train station as there appears to be several linear patterns (e.g. through Friendship Village).
 
 ### COVID-19 data
 
@@ -383,7 +386,52 @@ The following exercises will use the COVID-19 data from the NYT.
 
   11. Create a map that colors the states by the most recent cumulative number of COVID-19 cases (remember, these data report cumulative numbers so you don't need to compute that). Describe what you see. What is the problem with this map?
   
+```{r Question_11A}
+states_map <- map_data("state")
+
+recent_covid <- covid19 %>% 
+  group_by(state) %>%
+  summarize(most_recent_date_of_covid = max(date),
+            cases = max(cases)) %>%
+  filter(!`state` %in% c("Alaska", "Hawaii", "Guam", "Virgin Islands", "Puerto Rico", "Northern Mariana Islands")) %>%
+  mutate(state = str_to_lower(state))
+
+recent_covid %>% 
+  ggplot() +
+  geom_map(map = states_map,
+           aes(map_id = state,
+               fill = cases)) +
+  expand_limits(x = states_map$long, y = states_map$lat)+
+  labs(title = "Most Recent Cumulative Number of COVID-19 Cases")+
+  theme_map() +
+  theme(legend.position = "right",
+        legend.background = element_blank()) +
+  scale_fill_viridis_c(option = "inferno")
+  
+```
+
+> This map is a bit misleading as it does not take into account the population in each state (the ones with the most recent cases are some of the most populated states). It would be more beneficial to take proportions into account instead of totals. Also, we would assume that a state that's black or darker on the color gradient has nearly no cases which is not true given what we know. 
+  
   12. Now add the population of each state to the dataset and color the states by most recent cumulative cases/10,000 people. See the code for doing this with the Starbucks data. You will need to make some modifications. 
+  
+```{r Question_12}
+recent_covid19_10000 <-
+  left_join(census_pop_est_2018, recent_covid) %>% 
+  mutate(covid_per_10000 = (cases/est_pop_2018)*10000)
+
+recent_covid19_10000  %>%
+  ggplot() +
+  geom_map(map = states_map,
+           aes(map_id = state,
+               fill = covid_per_10000)) +
+  expand_limits(x = states_map$long, y = states_map$lat)+
+  labs(title = "Most Recent Cumulative Number of COVID-19 Cases per 10,000 People")+
+  theme_map() +
+  theme(legend.position = "right",
+        legend.background = element_blank()) +
+  scale_fill_viridis_c(option = "inferno")
+```
+
   
   13. **CHALLENGE** Choose 4 dates spread over the time period of the data and create the same map as in exercise 12 for each of the dates. Display the four graphs together using faceting. What do you notice?
   
@@ -393,18 +441,51 @@ These exercises use the datasets `MplsStops` and `MplsDemo` from the `carData` l
 
   14. Use the `MplsStops` dataset to find out how many stops there were for each neighborhood and the proportion of stops that were for a suspicious vehicle or person. Sort the results from most to least number of stops. Save this as a dataset called `mpls_suspicious` and display the table.  
   
-  15. Use a `leaflet` map and the `MplsStops` dataset to display each of the stops on a map as a small point. Color the points differently depending on whether they were for suspicious vehicle/person or a traffic stop (the `problem` variable). HINTS: use `addCircleMarkers`, set `stroke = FAlSE`, use `colorFactor()` to create a palette.  
+```{r Question_14}
+mpls_suspicious <-
+  MplsStops %>%
+  group_by(neighborhood) %>%
+  summarize(prop_sus = mean(problem == "suspicious")) %>%
+  arrange(desc(prop_sus)) 
+
+mpls_suspicious
+```
+
   
+  15. Use a `leaflet` map and the `MplsStops` dataset to display each of the stops on a map as a small point. Color the points differently depending on whether they were for suspicious vehicle/person or a traffic stop (the `problem` variable). HINTS: use `addCircleMarkers`, set `stroke = FAlSE`, use `colorFactor()` to create a palette.  
+
+```{r LLQuestion_15}
+
+```
+
+
   16. Save the folder from moodle called Minneapolis_Neighborhoods into your project/repository folder for this assignment. Make sure the folder is called Minneapolis_Neighborhoods. Use the code below to read in the data and make sure to **delete the `eval=FALSE`**. Although it looks like it only links to the .sph file, you need the entire folder of files to create the `mpls_nbhd` data set. These data contain information about the geometries of the Minneapolis neighborhoods. Using the `mpls_nbhd` dataset as the base file, join the `mpls_suspicious` and `MplsDemo` datasets to it by neighborhood (careful, they are named different things in the different files). Call this new dataset `mpls_all`.
 
-```{r, eval=FALSE}
+```{r Question_16}
 mpls_nbhd <- st_read("Minneapolis_Neighborhoods/Minneapolis_Neighborhoods.shp", quiet = TRUE)
+mpls_all <-
+  mpls_nbhd %>%
+  left_join(mpls_suspicious, 
+            by = c("BDNAME" = "neighborhood")) %>%
+  left_join(MplsDemo,
+            by = c("BDNAME" = "neighborhood"))
 ```
 
   17. Use `leaflet` to create a map from the `mpls_all` data  that colors the neighborhoods by `prop_suspicious`. Display the neighborhood name as you scroll over it. Describe what you observe in the map.
   
-  18. Use `leaflet` to create a map of your own choosing. Come up with a question you want to try to answer and use the map to help answer that question. Describe what your map shows. 
+```{r LLQuestion_17A}
+
+```
+
+> Describe what you observe in the map.
   
+  18. Use `leaflet` to create a map of your own choosing. Come up with a question you want to try to answer and use the map to help answer that question. Describe what your map shows. 
+
+```{r LLQuestion_18A}
+
+```
+
+> Describe what your map shows.
   
 ## GitHub link
 
