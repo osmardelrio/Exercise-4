@@ -1,6 +1,6 @@
 ---
 title: 'Weekly Exercises #4'
-author: "Put your name here"
+author: "Osmar Del Río"
 output: 
   html_document:
     keep_md: TRUE
@@ -249,47 +249,50 @@ starbucks_with_2018_pop_est %>%
   
   * If there are other variables you want to add that could enhance your plot, do that now.  
 
-```{r ?Question_8_data}
+```{r Question_8_data}
 favorite_stp_by_osmar <- tibble(
-  place = c("Home", "Macalester College", "Starbucks", 
-            "Target", "Trader Joe's", "The Downtowner",
-            "Mississippi River", "Cafe Latte", "Mattocks Park",
-            "Dunkin", "Hidden Falls Park", "McDonald's",
-            "Paige's Place"),
-  long = c(-93.102437, -93.100402, -93.095998, 
-           -93.115700, -93.084599, -93.061840, 
-           -93.1393172, -93.081060, -93.101474,
-           -93.100206, -93.113153, -93.095514,
-           -93.101813),
-  lat = c(44.962368, 44.962204, 44.965364,
-          44.971228, 44.953651, 44.963453, 
-          44.963187, 44.962340, 44.954233,
-          44.964432, 44.941871, 44.971949,
-          44.962280),
-  fav = c("Yes", "No", "Yes", 
+  place = c("Macalester College", "Target", "Mississippi River", 
+            "Dunkin", "McDonald's", "Trader Joe's", 
+            "Starbucks", "The Downtowner", "Cafe Latte", 
+            "Paige's Place", "Home", "Hidden Falls Park", 
+            "Mattocks Park"
+            ),
+  long = c(-93.1617567, -93.1576605, -93.200776, 
+           -93.1695065, -93.1676571, -93.1480801,
+           -93.1685844, -93.1074025, -93.1384035,
+           -93.1739773, -93.1755853, -93.1952405,
+           -93.1730586),
+  lat = c(44.941798, 44.9531936, 44.9436258,
+          44.9456256, 44.9549175, 44.9267008, 
+          44.9481694, 44.9429559, 44.9397601,
+          44.9396353, 44.9398093, 44.9062826,
+          44.9283966),
+  fav = c("No", "Yes", "Yes", 
           "No", "No", "No",
           "No", "No", "No",
-          "No", "No", "No",
-          "Yes")
+          "No", "Yes", "No",
+          "No")
   )
 ```
 
-```{r ?Question_8}
-pal <- colorNumeric("inferno", 
-                     domain = favorite_stp_by_osmar$places)
+```{r Question_8}
+pal <-
+  colorFactor(c("red", "blue"), favorite_stp_by_osmar$place )
+  
 
-leaflet(favorite_stp_by_osmar) %>%
+leaflet(favorite_stp_by_osmar) %>% 
 addProviderTiles(providers$OpenStreetMap) %>% 
-addCircles(opacity = 1, #issue?
+addCircles(opacity = 1,
            color = ~pal(place)) %>%
 addPolylines(lng = ~long,
              lat = ~lat) %>%
  addLegend(position = "bottomright",
             pal = pal, 
             values = ~place,
-            title = "Favorite Places") 
+            title = "Favorite Places")
 ```
 
+> This graph shows my favorite locations in Saint Paul and are connected by the order I first visited them.
   
 ## Revisiting old datasets
 
@@ -434,6 +437,11 @@ recent_covid19_10000  %>%
 
   
   13. **CHALLENGE** Choose 4 dates spread over the time period of the data and create the same map as in exercise 12 for each of the dates. Display the four graphs together using faceting. What do you notice?
+
+```{r ?Question_13A}
+
+```
+
   
 ## Minneapolis police stops
 
@@ -454,8 +462,20 @@ mpls_suspicious
   
   15. Use a `leaflet` map and the `MplsStops` dataset to display each of the stops on a map as a small point. Color the points differently depending on whether they were for suspicious vehicle/person or a traffic stop (the `problem` variable). HINTS: use `addCircleMarkers`, set `stroke = FAlSE`, use `colorFactor()` to create a palette.  
 
-```{r LLQuestion_15}
+```{r Question_15}
+pal <-
+  colorFactor(c("darkblue", "red"), MplsStops$problem)
+  
 
+leaflet(MplsStops) %>%
+addProviderTiles(providers$OpenStreetMap) %>% 
+addCircleMarkers(stroke = FALSE, 
+                 radius = 2, 
+                 color = ~pal(problem)) %>%
+  addLegend(position = "bottomright",
+            pal = pal, 
+            values = ~problem,
+            title = "Types of Mpls Police Stops")
 ```
 
 
@@ -473,15 +493,34 @@ mpls_all <-
 
   17. Use `leaflet` to create a map from the `mpls_all` data  that colors the neighborhoods by `prop_suspicious`. Display the neighborhood name as you scroll over it. Describe what you observe in the map.
   
-```{r LLQuestion_17A}
+```{r ?Question_17A}
+pal2 <- colorNumeric("inferno", 
+                     domain = mpls_all$prop_sus)
 
+leaflet(mpls_all) %>%
+addProviderTiles(providers$OpenStreetMap) %>% 
+addPolygons(fillColor = ~pal2(prop_sus),
+              stroke = FALSE,
+              fillOpacity = .7,
+              label = ~paste(str_to_title(BDNAME),
+                                ":",
+                                round(prop_sus,2),
+                                .sep = ""),
+                highlight = highlightOptions( 
+                                 color = "black",
+                                 fillOpacity = 0.9,
+                                 bringToFront = FALSE)) %>% 
+  addLegend(position = "bottomright",
+            pal = pal2, 
+            values = ~prop_sus,
+            title = "Suspicious stops")
 ```
 
 > Describe what you observe in the map.
   
   18. Use `leaflet` to create a map of your own choosing. Come up with a question you want to try to answer and use the map to help answer that question. Describe what your map shows. 
 
-```{r LLQuestion_18A}
+```{r ?Question_18A}
 
 ```
 
