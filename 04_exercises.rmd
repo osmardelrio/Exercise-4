@@ -184,7 +184,7 @@ ggmap(Mac) +
 The example I showed in the tutorial did not account for population of each state in the map. In the code below, a new variable is created, `starbucks_per_10000`, that gives the number of Starbucks per 10,000 people. It is in the `starbucks_with_2018_pop_est` dataset.
 
 ```{r Question_6}
-census_pop_est_2018 <- read_csv("https://www.dropbox.com/s/6txwv3b4ng7pepe/us_census_2018_state_pop_est.csv?dl=1") %>% 
+census_pop_est_2018 <- read_csv("https://www.dropbox.com/s/6txwv3b4ng7pepe/us_census_2018_state_pop_est.csv?dl=1") %>%
   separate(state, into = c("dot","state"), extra = "merge") %>% 
   select(-dot) %>% 
   mutate(state = str_to_lower(state))
@@ -199,7 +199,7 @@ starbucks_with_2018_pop_est <-
   6. **`dplyr` review**: Look through the code above and describe what each line of code does.
 
 > Line 182 = saves the following commands as a dataset called "census_pop_est_2018" and reads in the csv file.
-Line 183 = separates state names into "dot" and "state", merging the extra?
+Line 183 = separates state names into "dot" and "state", merging the extra
 Line 184 = drops the dot in the state name
 Line 185 = creates new variable named state (overwrites the old one in this case) and makes it all lowercase
 
@@ -439,9 +439,32 @@ recent_covid19_10000  %>%
   13. **CHALLENGE** Choose 4 dates spread over the time period of the data and create the same map as in exercise 12 for each of the dates. Display the four graphs together using faceting. What do you notice?
 
 ```{r ?Question_13A}
+new_recent_covid_19 <- covid19 %>%
+  filter(date %in% c(as.Date("2020-02-01"),
+                     as.Date("2020-05-01"),
+                     as.Date("2020-08-01"),
+                     as.Date("2020-11-01"))) %>%
+  filter(!`state` %in% c("alaska", "hawaii", "guam", "virgin islands", "puerto rico", "northern mariana islands")) %>%
+  mutate(state = str_to_lower(state)) %>%
+  left_join(census_pop_est_2018) %>%
+  mutate(covid_per_10000 = (cases/est_pop_2018)*10000)
+ 
 
+new_recent_covid_19 %>%
+ggplot() +
+  geom_map(map = states_map,
+           aes(map_id = state,
+               fill = covid_per_10000)) +
+  expand_limits(x = states_map$long, y = states_map$lat)+
+  labs(title = "Cumulative Number of COVID-19 Cases per 10,000 People Every 3 Months")+
+  theme_map() +
+  theme(legend.position = "right",
+        legend.background = element_blank()) +
+  scale_fill_viridis_c(option = "inferno") +
+  facet_wrap(~date)
 ```
 
+> COVID-19 cases have been steadily rising in every state per 10,000 people.
   
 ## Minneapolis police stops
 
@@ -493,7 +516,7 @@ mpls_all <-
 
   17. Use `leaflet` to create a map from the `mpls_all` data  that colors the neighborhoods by `prop_suspicious`. Display the neighborhood name as you scroll over it. Describe what you observe in the map.
   
-```{r ?Question_17A}
+```{r Question_17A}
 pal2 <- colorNumeric("inferno", 
                      domain = mpls_all$prop_sus)
 
@@ -516,15 +539,35 @@ addPolygons(fillColor = ~pal2(prop_sus),
             title = "Suspicious stops")
 ```
 
-> Describe what you observe in the map.
+> The highest proportion of suspicious stops are in the southeast region of the city.
   
   18. Use `leaflet` to create a map of your own choosing. Come up with a question you want to try to answer and use the map to help answer that question. Describe what your map shows. 
 
-```{r ?Question_18A}
-
+```{r Question_18A}
+pal3 <- colorNumeric("magma",
+                    domain = mpls_all$poverty)
+  
+leaflet(mpls_all) %>% 
+addProviderTiles(providers$OpenStreetMap) %>% 
+addPolygons(fillColor = ~pal3(poverty),
+              stroke = FALSE,
+              fillOpacity = .7,
+              label = ~paste(str_to_title(BDNAME),
+                             "|",
+                      "Proportion of Suspicious Stops:",
+                                round(prop_sus,2),
+                                .sep = ""),
+                highlight = highlightOptions( 
+                                 color = "black",
+                                 fillOpacity = 0.9,
+                                 bringToFront = FALSE)) %>% 
+  addLegend(position = "bottomright",
+            pal = pal3, 
+            values = ~poverty,
+            title = "Poverty Level")
 ```
 
-> Describe what your map shows.
+> I wanted to see if there was a pattern that emerged when comparing poverty level and proportion of suspicious stops. Based on this map, it appears that there is no relationship between the two.
   
 ## GitHub link
 
